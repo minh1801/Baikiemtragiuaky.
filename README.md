@@ -28,6 +28,10 @@ Mở thư mục project bằng Android Studio, cài SDK Platform 34, chọn Grad
 
 ## Video 1
 
-Video quay lại trực tiếp ứng dụng Nguyễn Văn Minh - BIT240157, không có giọng đọc. Bao gồm danh sách, chi tiết và ảnh, đổi ngôn ngữ, thêm/sửa/xóa, bộ lọc, lỗi nhập liệu, quản lý loại và lưu offline. Không đổi tên hay che thông tin trong video của người khác.
+- 00:00: ảnh, ngôn ngữ và thêm món.
+- 01:10: lọc kết hợp, sửa/xóa và quản lý loại.
+- 02:43: lưu offline, cài đặt và mở lại ứng dụng.
+
+Video dài 03:48, quay lại trực tiếp ứng dụng Nguyễn Văn Minh - BIT240157, không có giọng đọc và không có track âm thanh. Bao gồm danh sách, chi tiết và ảnh, đổi ngôn ngữ, thêm/sửa/xóa, bộ lọc, lỗi nhập liệu, quản lý loại và lưu offline. 
 
 Để nộp chính thức, cần đối chiếu đề và hoàn thiện phần MockAPI cùng các nội dung video còn được yêu cầu. Việc đăng GitHub không thay thế nộp LMS.
