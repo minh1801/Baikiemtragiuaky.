@@ -1,0 +1,368 @@
+1
+00:00:00,450 --> 00:00:02,060
+Chào thầy.
+
+2
+00:00:02,010 --> 00:00:07,861
+Trong video này, em xin trình bày cấu trúc và cách hoạt động của ứng dụng quản lý món ăn.
+
+3
+00:00:07,861 --> 00:00:12,874
+Tên sinh viên, mã sinh viên và tên project được thể hiện ngay trên màn hình.
+
+4
+00:00:12,874 --> 00:00:19,523
+Em chọn Android Native Java, kết hợp cơ sở dữ liệu SQLite để lưu trực tiếp trên thiết bị.
+
+5
+00:00:19,523 --> 00:00:24,794
+Cách làm này giúp các thao tác quản lý món ăn vẫn sử dụng được khi không có Internet.
+
+6
+00:00:24,794 --> 00:00:33,209
+Sau đây, em sẽ đi từ tổ chức project và mô hình dữ liệu, đến luồng xử lý chức năng, kiểm tra dữ liệu và giao diện đa ngôn ngữ.
+
+7
+00:00:34,780 --> 00:00:37,731
+Đầu tiên là cách tổ chức mã nguồn.
+
+8
+00:00:37,681 --> 00:00:42,333
+Nhóm model chứa ba lớp: loại món, món ăn và ảnh.
+
+9
+00:00:42,333 --> 00:00:47,423
+Nhóm data quản lý cơ sở dữ liệu, quy tắc đặt tên và lỗi nghiệp vụ.
+
+10
+00:00:47,423 --> 00:00:53,041
+Main Activity xây dựng các màn hình; lớp Texts cung cấp nhãn tiếng Anh và tiếng Việt.
+
+11
+00:00:53,041 --> 00:00:56,740
+Image Loader phụ trách tải ảnh và bộ nhớ đệm.
+
+12
+00:00:56,740 --> 00:01:00,284
+Nhóm sync chứa hàng đợi cùng bộ đồng bộ mở rộng.
+
+13
+00:01:00,284 --> 00:01:08,364
+Ở file cấu hình đang hiển thị, mã ứng dụng mang mã sinh viên, phiên bản Android tối thiểu là tám và mã nguồn dùng Java mười bảy.
+
+14
+00:01:08,364 --> 00:01:11,985
+Ứng dụng không phụ thuộc vào thư viện giao diện bên ngoài.
+
+15
+00:01:13,580 --> 00:01:19,095
+Về dữ liệu, loại món có ba thuộc tính là mã định danh, tên và mô tả.
+
+16
+00:01:19,045 --> 00:01:27,962
+Món ăn có mã định danh, tên, giá, thời gian chế biến, trạng thái đang bán, mô tả, mã loại và danh sách ảnh.
+
+17
+00:01:27,962 --> 00:01:32,202
+Trong đó, mã loại tạo quan hệ nhiều món thuộc về một loại.
+
+18
+00:01:32,202 --> 00:01:38,220
+Mỗi món lại có thể chứa nhiều ảnh; một ảnh gồm đường dẫn và cờ đánh dấu ảnh đại diện.
+
+19
+00:01:38,220 --> 00:01:43,362
+Giá được lưu bằng số nguyên kiểu long, còn thời gian chế biến là số phút nguyên.
+
+20
+00:01:43,362 --> 00:01:49,225
+Hàm kiểm tra nhanh dựa trên mốc mười lăm phút, vì vậy không cần lưu thêm một cột phân loại dư thừa.
+
+21
+00:01:50,850 --> 00:01:54,058
+Tiếp theo là yêu cầu về mã sinh viên.
+
+22
+00:01:54,008 --> 00:01:59,601
+Trên màn hình, hằng số P chứa đúng tiền tố của bài, có dấu gạch dưới ở cuối.
+
+23
+00:01:59,601 --> 00:02:05,168
+Các tên bảng loại món, món ăn, ảnh và hàng đợi đều được ghép từ hằng số này.
+
+24
+00:02:05,168 --> 00:02:12,874
+Tên cột, chẳng hạn mã định danh, tên, giá, thời gian chế biến và khóa ngoại, cũng được ghép theo cùng cách.
+
+25
+00:02:12,874 --> 00:02:19,356
+File settings của Gradle đặt tên project theo mẫu mã sinh viên, gạch dưới, Food Manager.
+
+26
+00:02:19,356 --> 00:02:23,944
+Tên cơ sở dữ liệu được đặt trong hàm khởi tạo lớp quản lý dữ liệu.
+
+27
+00:02:23,944 --> 00:02:30,426
+Như vậy, tiền tố được áp dụng vào bảng và cột thật khi lưu trữ, chứ không chỉ xuất hiện trong chú thích.
+
+28
+00:02:32,050 --> 00:02:37,153
+Khi mở cơ sở dữ liệu lần đầu, ứng dụng tạo các bảng và dữ liệu mẫu.
+
+29
+00:02:37,103 --> 00:02:43,404
+Quan hệ giữa món ăn và loại món được bảo vệ bằng khóa ngoại: loại đang được sử dụng không thể bị xóa.
+
+30
+00:02:43,404 --> 00:02:48,829
+Khi xóa một món, các ảnh đi kèm được xóa theo để không để lại dữ liệu mồ côi.
+
+31
+00:02:48,829 --> 00:02:54,590
+Ràng buộc duy nhất trên loại món và tên đã chuẩn hóa giúp chặn hai món trùng tên trong cùng loại.
+
+32
+00:02:54,590 --> 00:03:00,389
+Một chỉ mục duy nhất có điều kiện tiếp tục bảo đảm mỗi món chỉ có tối đa một ảnh đại diện.
+
+33
+00:03:00,389 --> 00:03:06,458
+Ngoài việc kiểm tra ở giao diện, cơ sở dữ liệu còn kiểm tra giá và thời gian phải lớn hơn không.
+
+34
+00:03:06,458 --> 00:03:09,951
+Dữ liệu ban đầu có ba loại và sáu món ăn.
+
+35
+00:03:11,580 --> 00:03:15,239
+Luồng ghi dữ liệu bắt đầu từ form thêm hoặc sửa.
+
+36
+00:03:15,189 --> 00:03:19,803
+Giao diện lấy các giá trị người dùng nhập, rồi gọi hàm lưu món.
+
+37
+00:03:19,803 --> 00:03:23,192
+Món mới được cấp một mã định danh ổn định.
+
+38
+00:03:23,192 --> 00:03:28,308
+Với thao tác sửa, chương trình kiểm tra món đó còn tồn tại trước khi cập nhật.
+
+39
+00:03:28,308 --> 00:03:35,086
+Sau khi dữ liệu hợp lệ, thông tin món, danh sách ảnh và thay đổi trong hàng đợi được ghi trong cùng một giao dịch.
+
+40
+00:03:35,086 --> 00:03:40,357
+Có lỗi thì hoàn tác toàn bộ; thành công thì màn hình chi tiết đọc lại bản đã lưu.
+
+41
+00:03:40,357 --> 00:03:47,084
+Ở chiều đọc, chương trình truy vấn món theo mã, lấy thêm các ảnh liên quan và ánh xạ kết quả thành model.
+
+42
+00:03:47,084 --> 00:03:51,182
+Thao tác xóa luôn yêu cầu xác nhận trước khi gọi lớp dữ liệu.
+
+43
+00:03:52,780 --> 00:03:57,432
+Phần kiểm tra dữ liệu được đặt tập trung trong lớp quản lý cơ sở dữ liệu.
+
+44
+00:03:57,382 --> 00:04:02,794
+Tên không được rỗng, giá và thời gian phải dương, còn loại món phải tồn tại.
+
+45
+00:04:02,794 --> 00:04:09,611
+Khi kiểm tra trùng tên, chương trình cắt và gom khoảng trắng, chuẩn hóa ký tự Unicode rồi chuyển chữ thường.
+
+46
+00:04:09,611 --> 00:04:15,075
+Nhờ vậy, khác biệt về hoa thường hoặc khoảng trắng không tạo ra hai tên tưởng như khác nhau.
+
+47
+00:04:15,075 --> 00:04:18,322
+Cùng một tên ở hai loại khác nhau vẫn được phép.
+
+48
+00:04:18,322 --> 00:04:22,304
+Các đường dẫn ảnh phải hợp lệ và không được trùng trong một món.
+
+49
+00:04:22,304 --> 00:04:30,268
+Khi gặp lỗi, chương trình trả về khóa thông báo; giao diện dùng khóa đó để hiện đúng ngôn ngữ đang chọn, thay vì lưu dữ liệu sai.
+
+50
+00:04:31,850 --> 00:04:38,654
+Ở màn hình danh sách, người dùng có thể phối hợp tìm tên, loại món, trạng thái đang bán và khoảng giá.
+
+51
+00:04:38,604 --> 00:04:44,196
+Các điều kiện loại, trạng thái và giá được đưa vào truy vấn cơ sở dữ liệu bằng tham số.
+
+52
+00:04:44,196 --> 00:04:48,488
+Tên được chuẩn hóa rồi kiểm tra có chứa phần người dùng nhập hay không.
+
+53
+00:04:48,488 --> 00:04:54,570
+Vì không dùng ký tự đại diện cho bước này, dấu phần trăm trong tên vẫn được hiểu là ký tự thông thường.
+
+54
+00:04:54,570 --> 00:04:59,299
+Biến sắp xếp quyết định giá tăng, giá giảm hoặc thời gian chế biến tăng.
+
+55
+00:04:59,299 --> 00:05:06,168
+Trạng thái bộ lọc được lưu trong tùy chọn ứng dụng, nên quay lại từ chi tiết hay form sửa vẫn giữ các lựa chọn.
+
+56
+00:05:06,168 --> 00:05:12,109
+Món ngừng bán chỉ bị loại khi bật điều kiện đang bán; nó vẫn có trong danh sách quản lý chung.
+
+57
+00:05:13,720 --> 00:05:18,475
+Với ảnh, form cho phép thêm nhiều đường dẫn và xóa riêng từng ảnh.
+
+58
+00:05:18,425 --> 00:05:26,376
+Màn hình chi tiết hiển thị bộ sưu tập; khi đổi ảnh đại diện, chương trình bật cờ cho ảnh được chọn và tắt cờ ở những ảnh còn lại.
+
+59
+00:05:26,376 --> 00:05:30,744
+Các ảnh mẫu có bản đóng gói trong ứng dụng để xem được khi mất mạng.
+
+60
+00:05:30,744 --> 00:05:36,891
+Ảnh người dùng thêm được lưu bộ nhớ đệm sau khi tải thành công; ảnh trống hoặc tải lỗi có hình thay thế.
+
+61
+00:05:36,891 --> 00:05:42,806
+Về thời gian chế biến, hàm đang hiển thị trả về nhanh khi số phút nhỏ hơn hoặc bằng mười lăm.
+
+62
+00:05:42,806 --> 00:05:46,169
+Nếu lớn hơn mốc đó thì hiển thị thông thường.
+
+63
+00:05:46,169 --> 00:05:52,033
+Đây là giá trị tính từ dữ liệu hiện có, nên luôn cập nhật đúng khi người dùng sửa thời gian.
+
+64
+00:05:53,650 --> 00:05:56,369
+Giao diện mặc định dùng tiếng Anh.
+
+65
+00:05:56,319 --> 00:06:04,115
+Khi chọn tiếng Việt, cờ ngôn ngữ được lưu lại và dùng chung cho danh sách, chi tiết, thêm, sửa cùng các màn hình phụ.
+
+66
+00:06:04,115 --> 00:06:09,257
+Lớp Texts lưu từng cặp bản dịch, còn hàm get chọn nội dung theo cờ hiện tại.
+
+67
+00:06:09,257 --> 00:06:15,442
+Việc dịch áp dụng cả nhãn, nút, trạng thái, hộp thoại và thông báo kiểm tra dữ liệu.
+
+68
+00:06:15,442 --> 00:06:21,937
+Khi đổi ngôn ngữ ngay trong form, chương trình thu thập bản nháp trước khi dựng lại giao diện để giữ nội dung đang nhập.
+
+69
+00:06:21,937 --> 00:06:27,182
+Tên và mô tả món do người dùng tạo không tự dịch, đúng với yêu cầu của đề.
+
+70
+00:06:27,182 --> 00:06:31,099
+Lựa chọn ngôn ngữ cũng được giữ sau khi mở lại ứng dụng.
+
+71
+00:06:32,720 --> 00:06:37,732
+Phần hoạt động offline đã được thực hiện bằng cách luôn đọc và ghi trên SQLite.
+
+72
+00:06:37,682 --> 00:06:44,847
+Khi người dùng thêm, sửa hoặc xóa, thay đổi được lưu ngay trên thiết bị; việc không có mạng không ngăn thao tác đó.
+
+73
+00:06:44,847 --> 00:06:51,574
+Đồng thời, hàm queue ghi loại đối tượng, mã định danh, thao tác và phiên bản thay đổi vào bảng hàng đợi.
+
+74
+00:06:51,574 --> 00:06:58,043
+Mỗi đối tượng chỉ giữ một mục hiện hành, vì vậy sửa liên tiếp không làm hàng đợi phình ra thành nhiều bản trùng.
+
+75
+00:06:58,043 --> 00:07:04,293
+Video một đã minh họa tắt mạng, thêm món, sửa giá thành bốn mươi nghìn rồi mở lại ứng dụng.
+
+76
+00:07:04,293 --> 00:07:06,368
+Dữ liệu vẫn còn.
+
+77
+00:07:06,368 --> 00:07:11,510
+Đây là minh chứng lưu local; nó chưa phải minh chứng đồng bộ lên máy chủ.
+
+78
+00:07:13,120 --> 00:07:18,906
+Về phần Mock API, em xin phân biệt rõ mã đã chuẩn bị và chức năng đã kiểm chứng.
+
+79
+00:07:18,856 --> 00:07:24,590
+Hai địa chỉ tài nguyên trong cấu hình hiện để trống, nên bộ đồng bộ dừng ở chế độ local.
+
+80
+00:07:24,590 --> 00:07:32,464
+Khi có hai địa chỉ riêng và hợp lệ, cơ chế dự kiến là theo dõi thay đổi kết nối, đọc dữ liệu máy chủ và tự gửi hàng đợi.
+
+81
+00:07:32,464 --> 00:07:40,608
+Mã định danh ổn định được dùng để tìm bản ghi trước khi tạo, còn phiên bản thay đổi giúp không xóa nhầm lần sửa mới khi yêu cầu cũ hoàn tất.
+
+82
+00:07:40,608 --> 00:07:45,402
+Tuy nhiên, bản này chưa cấu hình và chưa kiểm chứng đồng bộ với dịch vụ thật.
+
+83
+00:07:45,402 --> 00:07:51,897
+Vì vậy, video chỉ xác nhận phần lưu offline đã chạy, không trình bày phần tự đồng bộ là hoàn thành.
+
+84
+00:07:53,450 --> 00:07:56,014
+Cuối cùng là phần kiểm chứng.
+
+85
+00:07:55,964 --> 00:08:02,059
+Bản ứng dụng đã qua sáu mươi bảy mục kiểm tra dữ liệu và mười một mục kiểm tra giao diện trên emulator.
+
+86
+00:08:02,059 --> 00:08:09,430
+Số mục dữ liệu có tính riêng từng tên bảng, từng cột khi kiểm tra tiền tố, nên không đồng nghĩa với sáu mươi bảy chức năng.
+
+87
+00:08:09,430 --> 00:08:18,348
+Các kiểm tra còn lại bao gồm thêm, sửa, xóa, ràng buộc, tìm kiếm, bộ lọc, sắp xếp, ảnh và chuyển ngôn ngữ.
+
+88
+00:08:18,348 --> 00:08:24,946
+Video một minh họa thao tác thực tế; video này giải thích cấu trúc và các đoạn mã xử lý tương ứng.
+
+89
+00:08:24,946 --> 00:08:29,211
+Mã nguồn cùng bản cài đặt được lưu trên repository của bài.
+
+90
+00:08:29,211 --> 00:08:33,760
+Phần tự đồng bộ với dịch vụ thật vẫn cần cấu hình và kiểm chứng riêng.
+
+91
+00:08:33,760 --> 00:08:36,660
+Em xin kết thúc phần trình bày tại đây.
+
+92
+00:08:36,660 --> 00:08:38,593
+Em cảm ơn thầy.
+
